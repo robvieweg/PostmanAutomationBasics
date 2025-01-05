@@ -1,0 +1,602 @@
+{
+	"info": {
+		"_postman_id": "fbd978be-769d-42fe-a241-1ca4b9ed6156",
+		"name": "PotterAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40798647"
+	},
+	"item": [
+		{
+			"name": "add new spell",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.globals.set(\"avadaKedavraId\", jsonData.spell.id);\r",
+							"console.log(pm.globals.get(\"avadaKedavraId\"));\r",
+							"\r",
+							"\r",
+							"pm.test(\"It should return 201\", ()=> {\r",
+							"    pm.expect(pm.response.code).to.equal(201)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response should contain message\", ()=> {\r",
+							"    pm.expect(jsonData.message).equals(\"Spell created\");\r",
+							"});\r",
+							"\r",
+							"console.log(pm.globals.get(\"avadaKedavraId\")); \r",
+							"\r",
+							"//Poslání GET spells rovnou pro kontrolu, že se kouzlo vytvořilo\r",
+							"const reqInfo = {\r",
+							"    url: pm.environment.get('baseURL') + '/spells/'+ pm.globals.get(\"avadaKedavraId\"),\r",
+							"    method: 'GET'\r",
+							"}\r",
+							"\r",
+							"console.log(\"reqInfo\")\r",
+							"\r",
+							"pm.test(\"it should get new spell\", ()=> {\r",
+							"    pm.sendRequest(reqInfo,(err,res)=> {\r",
+							"        pm.expect(res).to.have.property('code', 200);\r",
+							"        pm.expect(res.json().effect).to.equal(\"house arrested until the end of your miserable life\");\r",
+							"    });\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//vymaž všechny kouzla před spuštěním skriptu\r",
+							"const reqInfo = {\r",
+							"    url: pm.environment.get('baseURL') + '/spells/actions/deleteAll',\r",
+							"    method: 'DELETE'\r",
+							"}\r",
+							"\r",
+							"pm.test('It should delete all the spells', ()=> {\r",
+							"    pm.sendRequest(reqInfo, (err, res)=>{\r",
+							"        pm.expect(res.json().message).to.equal('Mischief managed')\r",
+							"    })\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"spell\":\"Corona\", \r\n\t\"effect\":\"house arrested until the end of your miserable life\", \r\n\t\"type\":\"Curse\",\r\n\t\"isUnforgivable\":\"false\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/spells",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sortingHat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json(); //konstanta, protože jednou definuji a pak už nepotřebuju měnit\r",
+							"const expectedHouses = ['Gryffindor', 'Slytherin', 'Ravenclaw', 'Hufflepuff'];\r",
+							"\r",
+							"var house = jsonData.house; //variable, protože house v odpovědi může přijít různý\r",
+							"\r",
+							"console.log(jsonData.sortingHatSays)\r",
+							"console.info(\"já jsem nevinná informace\")\r",
+							"console.warn(\"já jsem varování\")\r",
+							"console.error(\"já jsem error\")\r",
+							"\r",
+							"//\"function ()\" je to samé jako arrow function \"()=>\" ... je to jen jiný zápis\r",
+							"\r",
+							"pm.test(\"Status code is 200\", ()=> {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Status code should be 200\", ()=> {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"sortingHatSays should be a non-empty string\", ()=> {\r",
+							"    const sortingHatSays = jsonData.sortingHatSays;\r",
+							"    pm.expect(sortingHatSays).to.be.a('string').and.not.empty;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"house should be a non-empty string\", ()=> {\r",
+							"    pm.expect(house).to.be.a('string').and.not.empty;\r",
+							"})\r",
+							"\r",
+							"pm.test(\"House is one of \" + expectedHouses, ()=>{\r",
+							"    pm.expect(house).is.oneOf(expectedHouses)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Header contains Content-type application/json\", ()=> {\r",
+							"    pm.expect(pm.response).to.have.header('Content-type');\r",
+							"    pm.expect(pm.response.headers.get('Content-type')).to.contain('application/json')\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Response time should be below 1000 ms\", ()=> {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/sortingHat",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"sortingHat"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "sortingHatDefault for MOCK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/sortingHat",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"sortingHat"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"sortingHatSays\": \"Your broom is too magnificent, you should study at Ravenclaw\",\n    \"house\": \"Ravenclaw\"\n}"
+				}
+			]
+		},
+		{
+			"name": "spells",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Each spell should have type Curse\", ()=> {\r",
+							"    pm.response.json().forEach(spellMember => pm.expect(spellMember.type).to.equal('Curse'));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"It should filter number of spells based on limit param\", ()=> {\r",
+							"    pm.expect(pm.response.json()).has.length(1)\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/spells?type=Curse&limit=1",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "Curse"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "specific spell query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const expectedSpell={\r",
+							"    \"id\": pm.globals.get('avadaKedavraId'),\r",
+							"    \"spell\":\"Corona\",\r",
+							"    \"type\": \"Curse\",\r",
+							"    \"effect\": \"house arrested until the end of your miserable life\",\r",
+							"    \"isUnforgivable\": \"false\"\r",
+							"}\r",
+							"\r",
+							"pm.test(\"It should return correct spell\", ()=>{\r",
+							"    pm.expect(pm.response.json()).to.eql(expectedSpell)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/spells/{{avadaKedavraId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells",
+						"{{avadaKedavraId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "specific spell schéma",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema={\r",
+							"    \"type\":\"object\",\r",
+							"    \"required\":['id', 'spell', 'effect', 'type', 'isUnforgivable'],\r",
+							"    \"properties\":{\r",
+							"        \"id\":{\r",
+							"            \"type\":\"string\",\r",
+							"            \"minLength\":20\r",
+							"        },\r",
+							"        \"isUnforgivable\":{\r",
+							"            \"type\":\"string\",\r",
+							"            \"enum\":[\"true\", \"false\"]\r",
+							"        },\r",
+							"        \"type\":{\r",
+							"            \"enum\":['Spell', 'Charm', 'Curse', 'Enchantment', 'Jinx', 'Hex']\r",
+							"        },\r",
+							"        //Spell vždy začíná velkým písmenem\r",
+							"        \"spell\":{\r",
+							"            \"pattern\":\"^([A-Z]).+\"\r",
+							"        }\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Response should match schema\", function() {\r",
+							"    pm.expect(pm.response.json()).to.have.jsonSchema(schema)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/spells/{{avadaKedavraId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells",
+						"{{avadaKedavraId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add new spell dynamická proměnná",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"spell\":\"{{$randomJobTitle}}\", //dynamická proměnná - nativní funkce postmana\r\n\t\"effect\":\"{{$randomBsBuzz}} {{$randomBsAdjective}}\",  //dynamická proměnná - nativní funkce postmana\r\n\t\"type\":\"Curse\",\r\n\t\"isUnforgivable\":\"false\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/spells",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update spell",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"spell\": \"Soplik\",\r\n    \"type\": \"Jinx\",\r\n    \"effect\": \"sneezing forever\",\r\n    \"isUnforgivable\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/spells/{{avadaKedavraId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells",
+						"{{avadaKedavraId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete spell",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/spells/{{avadaKedavraId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"spells",
+						"{{avadaKedavraId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "characters - basic auth",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/characters",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"characters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set('token',pm.response.json().token)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/login",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "houses using token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/houses",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"houses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get specific character",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('It should contain alias', ()=> {\r",
+							"    pm.expect(pm.response.json().alias).to.equal('Lord Voldemort')\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/characters/5a122c200f5ae10021650d88",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"characters",
+						"5a122c200f5ae10021650d88"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
